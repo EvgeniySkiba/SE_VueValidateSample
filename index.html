@@ -21,18 +21,32 @@
 
 
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Focused</label>
+                    <label class="col-sm-2 control-label">Focused regexp2</label>
+                    <div class="col-sm-10">
+                        <input :class="[{'input': true, 'is-danger': errors.has('focusName2')},'form-control' ]"
+                               id="focusedInput2"
+                               type="text"
+                               placeholder="Click to focus..."
+                               v-validate="{ required: true, regex: /\d{5}/ }"
+                               name="focusName2">
+
+                        <span v-show="errors.has('focusName2')"
+                              class="help field-validation-valid text-danger">{{ errors.first('focusName2') }}</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Focused regexp</label>
                     <div class="col-sm-10">
                         <input :class="[{'input': true, 'is-danger': errors.has('focusedInput')},'form-control' ]"
                                id="focusedInput"
                                type="text"
                                placeholder="Click to focus..."
-                               v-validate="'required'"
+                               v-validate="{ regex: /^[rpRP]\d{6}[a-zA-Z]$/ }"
                                name="focusName">
 
                         <span v-show="errors.has('focusName')"
                               class="help field-validation-valid text-danger">{{ errors.first('focusName') }}</span>
-
                     </div>
                 </div>
 
@@ -70,27 +84,37 @@
 
                 <div class="form-group">
                     <label> some emails </label>
-                    <input class="form-control" v-validate="'required|email'" type="text" name="email">
+                    <input class="form-control"
+                           v-validate:dirname="{required: true, regex: /d/ }"
+                           type="text" name="email2">
+                    <span v-show="errors.has('email2')"
+                          class="help field-validation-valid text-danger">{{ errors.first('email2') }}</span>
                 </div>
 
                 <div class="form-group">
-                    <label class="control-label" for="email">Email iiii </label>
+                    <label class="control-label" for="middlename">Midle name</label>
                     <p :class="{ 'control': true }">
-                        <input v-validate="'required|email'"
-                               :class="{'input': true, 'is-danger': errors.has('email') }"
-                               name="email" type="text"
-                               placeholder="Email">
-                        <i v-show="errors.has('email')" class="fa fa-warning"></i>
-                        <span v-show="errors.has('email')"
-                              class="help is-danger">{{ errors.first('email') }}</span>
+
+                        <input v-validate="'required'"
+                               :class="{'input': true, 'is-danger': errors.has('middlename') }"
+                               name="middlename" type="text"
+                               placeholder="middlename">
+                        <i v-show="errors.has('middlename')" class="fa fa-warning"></i>
+
+                        <span v-show="errors.has('middlename')"
+                              class="help is-danger">{{ errors.first('middlename') }}</span>
                     </p>
                 </div>
 
-            
+                <hr />
+
 
                 <div class="column is-12">
                     <p class="control">
                         <button class="button is-primary" type="submit">Submit</button>
+                    </p>
+                    <p>
+                        <button class="button is-danger" type="button" @click="clearChild">Clear Child Errors</button>
                     </p>
                 </div>
 
@@ -99,6 +123,8 @@
                         <button class="button is-primary" v-on:click="submitAction" type="button">Submit2</button>
                     </p>
                 </div>
+
+
             </form>
         </div>
     </div>
@@ -109,6 +135,56 @@
 
 
     <script>
+        Vue.config.debug = true;
+
+
+        const dict = {
+            en: {
+                custom: {
+                    email: {
+                        required: 'Your email is empty' // messages can be strings as well.
+                    },
+                    name: {
+                        required: () => 'Your name is empty'
+                    },
+                    email2:
+                    {
+                        required: () => 'Деньги будут отправлены вам на имеил',
+                        regex: () => 'REEEEEEEEEEEGEEEEEEEEEEEEEXP'
+
+                    },
+                    focusName2: {
+
+                        required: () => 'какого хрена',
+                        regex: () => 'REEEEEEEEEEEGEEEEEEEEEEEEEXP'
+                    }
+
+                }
+            }
+        };
+
+
+        const dictionary = {
+            en: {
+                messages:
+                {
+                    confirmed: function () {
+                        return "Your password is not confirmed"
+                    },
+                    email: function () {
+                        return "I really dont like your email"
+                    },
+                    required: function () {
+                        return "о май гад";
+                    },
+                    regexp: function () {
+                        return "рыгексп";
+                    }
+
+                }
+
+            }
+        };
 
         // String
         const expression = 'required|regex:^[0-9]+';
@@ -124,6 +200,11 @@
 
         Vue.use(VeeValidate);
 
+
+        VeeValidate.Validator.updateDictionary(dict);
+        // or use the instance method
+        //this.$validator.updateDictionary(dict);
+
         var app = new Vue({
             el: '#app',
             data: {
@@ -132,6 +213,8 @@
 
                 isActive: true,
                 error: false
+
+
 
             }, methods: {
                 validateBeforeSubmit() {
@@ -162,16 +245,34 @@
                     });
 
                 },//form-control
+
+                clearChild: function () {
+
+                }
             },
             computed: {
-                    classObject: function () {
-                        return {
-                            active: this.errors.has('lastName'),//this.isActive && !this.error,
-                            'form-control': true
-                        }
+                classObject: function () {
+                    return {
+                        active: this.errors.has('lastName'),//this.isActive && !this.error,
+                        'form-control': true
                     }
+                },
+                selectedError() {
+                    if (!this.selector) {
+                        return 'You did not select any error';
+                    }
+
+                    return this.errors.first(this.selector) || 'None Found';
                 }
-            })
+            },
+
+            created() {
+                this.errors.add('middlename', 'Имя  is required', 'required');
+
+                //    this.errors.add('focusName2', 'какого хрена', 'regexp')
+                //    this.errors.add('focusName2', 'Объязательно!!!', 'required')
+            }
+        })
     </script>
 
 
