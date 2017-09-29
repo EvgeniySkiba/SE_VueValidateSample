@@ -74,22 +74,29 @@
                 </div>
 
                 <div class="form-group">
-
-                    <label class="label" for="email">Email</label>
+                    <label class="control-label" for="email">Email iiii </label>
                     <p :class="{ 'control': true }">
                         <input v-validate="'required|email'"
                                :class="{'input': true, 'is-danger': errors.has('email') }"
                                name="email" type="text"
                                placeholder="Email">
+                        <i v-show="errors.has('email')" class="fa fa-warning"></i>
                         <span v-show="errors.has('email')"
                               class="help is-danger">{{ errors.first('email') }}</span>
                     </p>
-
                 </div>
+
+            
 
                 <div class="column is-12">
                     <p class="control">
                         <button class="button is-primary" type="submit">Submit</button>
+                    </p>
+                </div>
+
+                <div class="column is-12">
+                    <p class="control">
+                        <button class="button is-primary" v-on:click="submitAction" type="button">Submit2</button>
                     </p>
                 </div>
             </form>
@@ -102,6 +109,18 @@
 
 
     <script>
+
+        // String
+        const expression = 'required|regex:^[0-9]+';
+
+        const expression2 = {
+            // parameterless rules take a boolean value.
+            required: true,
+            // single parameter rules take a single value.
+            regex: /.(js|ts)$/,
+            // multiple paramter rules take a single array.
+            in: [1, 2, 3]
+        };
 
         Vue.use(VeeValidate);
 
@@ -125,17 +144,34 @@
 
                         alert('Correct them errors!');
                     });
-                }
-            },//form-control
+                },
+
+                submitAction: function () {
+                    console.log('validation before submit ');
+                    this.validateBeforeSubmit2();
+                },
+                validateBeforeSubmit2() {
+                    this.$validator.validateAll().then((result) => {
+                        if (result) {
+                            // eslint-disable-next-line
+                            alert('!!!!!!!!!!!!!!!!  From Submitted!');
+                            return;
+                        }
+
+                        alert('!!!!!!!!!!!  Correct them errors!');
+                    });
+
+                },//form-control
+            },
             computed: {
-                classObject: function () {
-                    return {
-                        active: this.errors.has('lastName'),//this.isActive && !this.error,
-                        'form-control': true
+                    classObject: function () {
+                        return {
+                            active: this.errors.has('lastName'),//this.isActive && !this.error,
+                            'form-control': true
+                        }
                     }
                 }
-            }
-        })
+            })
     </script>
 
 
